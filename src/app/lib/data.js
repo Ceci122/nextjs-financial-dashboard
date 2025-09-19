@@ -183,13 +183,61 @@ export async function fetchInvoiceById(id) {
   }
 }
 
-export async function fetchCustomers() {
+export async function fetchCustomers(query) {
+  try {
+    let data;
+
+    if (query && query.trim() !== '') {
+      // If there's a search query, bind it properly with wildcards
+      const search = `%${query}%`;
+      data = await sql`
+        SELECT
+          c.id,
+          c.name,
+          c.email,
+          c.image_url,
+          COUNT(i.id) AS total_invoices,
+          COALESCE(SUM(CASE WHEN i.status = 'pending' THEN i.amount ELSE 0 END), 0) AS total_pending,
+          COALESCE(SUM(CASE WHEN i.status = 'paid' THEN i.amount ELSE 0 END), 0) AS total_paid
+        FROM customers c
+        LEFT JOIN invoices i ON c.id = i.customer_id
+        WHERE c.name ILIKE ${search} OR c.email ILIKE ${search}
+        GROUP BY c.id, c.name, c.email, c.image_url
+        ORDER BY c.name ASC;
+      `;
+    } else {
+      // No search term → fetch all customers
+      data = await sql`
+        SELECT
+          c.id,
+          c.name,
+          c.email,
+          c.image_url,
+          COUNT(i.id) AS total_invoices,
+          COALESCE(SUM(CASE WHEN i.status = 'pending' THEN i.amount ELSE 0 END), 0) AS total_pending,
+          COALESCE(SUM(CASE WHEN i.status = 'paid' THEN i.amount ELSE 0 END), 0) AS total_paid
+        FROM customers c
+        LEFT JOIN invoices i ON c.id = i.customer_id
+        GROUP BY c.id, c.name, c.email, c.image_url
+        ORDER BY c.name ASC;
+      `;
+    }
+    return data.rows;
+  } catch (err) {
+    console.error('Database Error (fetchCustomers):', err.message, err.stack);
+    throw err;
+  }
+}
+
+/*export async function fetchCustomers() {
   unstable_noStore();
   try {
     const data = await sql`
       SELECT
         id,
-        name
+        name,
+        email,
+        image_url
       FROM customers
       ORDER BY name ASC
     `;
@@ -235,6 +283,7 @@ export async function fetchFilteredCustomers(query) {
     throw new Error('Failed to fetch customer table.');
   }
 }
+*/
 
 export async function getUser(email) {
   unstable_noStore();

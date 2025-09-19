@@ -1,5 +1,18 @@
-export default function Page() {
+import { fetchCustomers} from "@/app/lib/data"
+import CustomersTable from "@/app/ui/customers/table"
+import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
+import { Suspense } from 'react';
+
+export default async function Page({ searchParams }) {
+    const query = searchParams?.query || '';
+    const customers = await fetchCustomers(query);
+
     return (
-        <p>Customers Page</p>
-    )  
+        <div>
+            <Suspense fallback={<InvoicesTableSkeleton />}>
+                <CustomersTable customers={customers} />
+            </Suspense>
+
+        </div>
+    )
 }
