@@ -4,8 +4,6 @@ import { authConfig } from './auth.config';
 import { z } from 'zod';
 import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcrypt';
-import { serverConfig } from './src/app/lib/config';
-import { server } from 'typescript';
 
 async function getUser(email) {
   try {
@@ -18,6 +16,16 @@ async function getUser(email) {
   }
 }
 
+{/*async function getUser(email) {
+  try {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    const user = await sql`SELECT * FROM users WHERE email=${email}`;
+    return user.rows[0];
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}*/}
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
@@ -41,6 +49,6 @@ export const { auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  secret: serverConfig.authSecret,
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
 });
