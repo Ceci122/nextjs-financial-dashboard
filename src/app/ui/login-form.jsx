@@ -1,21 +1,18 @@
 'use client';
 
-import { lusitana } from '@/app/ui/fonts';
 import {
-  AtSymbolIcon,
-  KeyIcon,
-  ExclamationCircleIcon,
+ AtSymbolIcon,
+ KeyIcon,
+ ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/actions';
 
 export default function LoginForm() {
-  const [errorMessage, dispatch] = useActionState(authenticate, undefined);
-
-  return (
+ const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+ return (
  <form action={dispatch} className="space-y-3">
  <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
  <h1 className={`mb-3 text-2xl`}>
@@ -39,7 +36,7 @@ export default function LoginForm() {
  placeholder="Enter your email address"
  required
  />
-             <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2
+ <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2
 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
  </div>
  </div>
